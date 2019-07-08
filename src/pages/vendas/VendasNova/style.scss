@@ -1,0 +1,15 @@
+.table {
+  thead, tfoot {
+    tr {
+      td:last-child {
+        width: 20%;
+      }
+    }
+    font-weight: bold;
+  }
+}
+
+.selectSize {
+  width: 70px;
+  margin: 0 auto;
+}

@@ -1,0 +1,84 @@
+{
+  "produtos": [
+    {
+      "id": 1,
+      "preco": 6,
+      "nome": "Espetinho",
+      "categoriaId": 1,
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 2,
+      "preco": 7,
+      "nome": "Caldo",
+      "categoriaId": 1,
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 3,
+      "preco": 10,
+      "nome": "Galinhada",
+      "categoriaId": 1,
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 4,
+      "preco": 7,
+      "nome": "Espeto Chocolate",
+      "categoriaId": 2,
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 5,
+      "preco": 2.5,
+      "nome": "Refrigerante",
+      "categoriaId": 3,
+      "created_at": "06/04/2019T09:16:32"
+    }
+  ],
+  "categorias": [
+    {
+      "id": 1,
+      "nome": "Salgados",
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 2,
+      "nome": "Doces",
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 3,
+      "nome": "Bebidas",
+      "created_at": "06/04/2019T09:16:32"
+    }
+  ],
+  "vendas": [
+    {
+      "id": 1,
+      "produtosId": [
+        1,
+        2
+      ],
+      "total": 265.9,
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 2,
+      "produtosId": [
+        2
+      ],
+      "total": 20.9,
+      "created_at": "06/04/2019T09:16:32"
+    },
+    {
+      "id": 3,
+      "produtosId": [
+        1,
+        4
+      ],
+      "total": 265.9,
+      "created_at": "06/04/2019T09:16:32"
+    }
+  ]
+}

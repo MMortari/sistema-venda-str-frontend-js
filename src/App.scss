@@ -1,0 +1,33 @@
+
+$header-height: 50px;
+$width-menu: 180px;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif,
+}
+
+.full {
+  display: flex;
+  flex-direction: column;
+
+  #{Header} {
+    height: $header-height;
+  }
+  
+  .content {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - #{$header-height});
+    
+    main {
+      background: #fff;
+      width: calc(100% - #{$width-menu});
+      padding: 15px;
+      overflow: auto;
+    }
+  }
+
+}

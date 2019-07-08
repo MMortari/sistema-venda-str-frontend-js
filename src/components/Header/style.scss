@@ -1,0 +1,27 @@
+@import './../../style/colors.scss';
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  background: $header-background;
+  color: $header-text-color;
+  z-index: 15;
+
+  h1 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+
+    li {
+      margin: 0px 15px;
+    }
+  }
+}
