@@ -1,5 +1,3 @@
-import React from 'react';
-
 const DinheiroMask = ({ prefix = "R$", decimal = 2, chunkDelimiter = '.', decimalDelimiter = ',', children }) => {
 
   let total = "";

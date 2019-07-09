@@ -80,5 +80,16 @@
       "total": 265.9,
       "created_at": "06/04/2019T09:16:32"
     }
+  ],
+  "comandas": [
+    {
+      "id": 1,
+      "nome": "Matheus",
+      "produtos": [
+        { "id": 1, "qtde": 3 }
+      ],
+      "total": 362,
+      "created_at": "06/04/2019T09:16:32"
+    }
   ]
 }

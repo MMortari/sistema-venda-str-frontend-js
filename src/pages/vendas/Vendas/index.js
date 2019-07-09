@@ -1,16 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import _ from 'lodash';
 
+// Services
 import api from '../../../services/api';
+// Components
 import Head from '../../../components/Head';
 import DinheiroMask from '../../../components/DinheiroMask';
-
+import Loading from '../../../components/Loading';
+// Style
 import './style.scss';
 
 class Vendas extends Component {
   
   state = {
+    loading: true,
     vendas: [],
+    produtos: [],
     modalShow: false,
     vendaInfo: {
       id: null,
@@ -21,9 +28,16 @@ class Vendas extends Component {
   }
 
   async componentDidMount() {
-    const response = await api.get('/vendas');
-    const vendas = response.data;
-    this.setState({ vendas });
+    // Recebe as vendas pela API
+    const responseVendas = await api.get('/vendas');
+    const vendas = responseVendas.data;
+    
+    // Recebe os produtos pela API
+    const responseProdutos = await api.get('/produtos');
+    const produtos = responseProdutos.data;
+
+    // Salva no state
+    this.setState({ vendas, produtos, loading: false });
     console.log("Vendas -> ", vendas)
   }
 
@@ -57,10 +71,20 @@ class Vendas extends Component {
     this.setState({ vendas });
   }
 
+  infoProdutosPeloId = id => {
+    const index = _.findIndex(this.state.produtos, ["id", id]);
+
+    return this.state.produtos[index];
+  }
+
   render() {
     return (
       <Fragment>
-        <Head title="Vendas" breadcrumb={['Vendas']} />
+        <Head title="Vendas" breadcrumb={['Vendas']}>
+          <Link className="btn btn-dark" to="/vendas/nova"><i className="fa fa-plus-circle"></i></Link>
+        </Head>
+
+        { this.state.loading && (<Loading />) }
 
         <table className="table table-borded">
           <thead>
@@ -78,7 +102,7 @@ class Vendas extends Component {
                 <td>{vendas.id}</td>
                 <td className="text-center"><DinheiroMask>{vendas.total}</DinheiroMask></td>
                 <td className="text-center"><b>{vendas.produtosId.length}</b></td>
-                <td><button className="btn btn-info" onClick={() => this.handleInfoVenda(vendas)}><i className="fa fa-info-circle"></i></button></td>
+                <td><button className="btn btn-info" onClick={() => {this.handleInfoVenda(vendas)}}><i className="fa fa-info-circle"></i></button></td>
                 <td><button className="btn btn-danger" onClick={() => this.handleDeleteVenda(vendas.id)}><i className="fa fa-trash"></i></button></td>
               </tr>
             )) }
@@ -103,10 +127,10 @@ class Vendas extends Component {
                 <tr>
                   <td><b>Produtos</b></td>
                   <td>
-                    {this.state.vendaInfo.produtosId.map(data => (
-                      <>
-                      {data}<br/>
-                      </>
+                    {this.state.vendaInfo.produtosId.map((data, index) => (
+                      <Fragment key={index}>
+                        {data}<br/>
+                      </Fragment>
                     ))}
                   </td>
                 </tr>

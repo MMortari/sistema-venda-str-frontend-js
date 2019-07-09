@@ -1,0 +1,36 @@
+.cardDashboard {
+  width: 100%;
+  height: 150px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 6px #cacaca;
+  display: flex;
+
+  .card {
+    &-left {
+      // background: pink;
+      width: 35%;
+      padding: 10px;
+      display: flex;
+      align-items: initial;
+      flex-direction: column-reverse;
+
+      .title {
+        font-weight: bold;
+      }
+      .describe {
+        color: #4e4e4e;
+        font-size: 20px;
+      }
+    }
+    
+    &-right {
+      // background: yellow;
+      width: 65%;
+      min-width: 200px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}

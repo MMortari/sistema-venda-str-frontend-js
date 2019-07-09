@@ -7,6 +7,7 @@ import api from '../../../services/api';
 // Component
 import Head from '../../../components/Head';
 import DinheiroMask from '../../../components/DinheiroMask'
+import Loading from '../../../components/Loading'
 //Style
 import './style.scss';
 
@@ -59,7 +60,7 @@ class Produtos extends Component {
           <button className="btn btn-dark" onClick={this.handleOpenModalNewProduct}><i className="fa fa-plus-circle"></i></button>
         </Head>
 
-        { this.state.loading && (<i className="fa fa-spinner fa-spin"></i>) }
+        { this.state.loading && (<Loading />) }
         { this.state.error && (<Alert variant={"danger"}>error</Alert>) }
 
         <table className="table table-borded">

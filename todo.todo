@@ -1,0 +1,16 @@
+Dashboard:
+  
+
+Vendas:
+  ☐ Informações dos produtos nas informações de vendas;
+  ☐ Apagar venda;
+
+Produtos: 
+  ☐ Cadastrar
+    ☐ Fazer modal
+    ☐ Fazer lógica
+  ☐ Editar
+    ☐ Fazer modal
+    ☐ Fazer lógica
+  
+Comandas:
