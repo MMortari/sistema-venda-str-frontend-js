@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import _ from 'lodash';
 
 // Services
@@ -38,6 +40,7 @@ class Vendas extends Component {
 
     // Salva no state
     this.setState({ vendas, produtos, loading: false });
+    toast.success('Vendas carregadas com sucesso !', {containerId: 'A', autoClose: 150000});
     console.log("Vendas -> ", vendas)
   }
 
@@ -85,6 +88,7 @@ class Vendas extends Component {
         </Head>
 
         { this.state.loading && (<Loading />) }
+        <ToastContainer enableMultiContainer containerId={'A'} position={toast.POSITION.TOP_RIGHT} />
 
         <table className="table table-borded">
           <thead>
@@ -129,7 +133,8 @@ class Vendas extends Component {
                   <td>
                     {this.state.vendaInfo.produtosId.map((data, index) => (
                       <Fragment key={index}>
-                        {data}<br/>
+                        {/* Pequena gambirra, olhar em https://www.freecodecamp.org/forum/t/react-cant-access-a-property-of-an-object-stored-in-state/138169/2 */}
+                        { _.find(this.state.produtos, ["id", data]) && _.find(this.state.produtos, ["id", data]).nome }<br/>
                       </Fragment>
                     ))}
                   </td>
