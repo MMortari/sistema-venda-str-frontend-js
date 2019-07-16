@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import _ from 'lodash';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 // Services
 import api from '../../../services/api';
@@ -13,6 +15,8 @@ import DinheiroMask from '../../../components/DinheiroMask';
 import Loading from '../../../components/Loading';
 // Style
 import './style.scss';
+
+const MySwal = withReactContent(Swal);
 
 class Vendas extends Component {
   
@@ -40,15 +44,45 @@ class Vendas extends Component {
 
     // Salva no state
     this.setState({ vendas, produtos, loading: false });
-    toast.success('Vendas carregadas com sucesso !', {containerId: 'A', autoClose: 150000});
-    console.log("Vendas -> ", vendas)
+
+    // toast.success('Vendas carregadas com sucesso !', {containerId: 'A', autoClose: 15000});
+
+    console.log("Vendas -> ", vendas);
   }
 
-  handleDeleteVenda = async (id) => {
-    // console.log(`Apagar com id -> ${id}`)
-    const response = await api.delete(`/vendas/${id}`);
-    console.log("Delete -> ", response)
-    // await this.handleImportVendasApi;
+  handleDeleteVenda = id => {
+    MySwal.fire({
+      title: <p>Deseja apagar essa venda?</p>,
+      type: 'question',
+      showCancelButton: true,
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Apagar"
+    }).then(async ({ value }) => {
+      if(value) {
+        let apagar = toast("Apagando...", { containerId: 'A', autoClose: false })
+        
+        // const response = await api.delete(`/vendas/${id}`);
+        // setTimeout(() => console.log("set"), 5000);
+        const response = await new Promise((resolve) => setTimeout(() => resolve(true), 1500));
+
+        console.log(`Delete ${id} -> `, response);
+        if(response) {
+          toast.update(apagar, {
+            render: 'Apagado com sucesso!',
+            type: toast.TYPE.SUCCESS,
+            containerId: 'A', 
+            autoClose: 10000
+          })
+        } else {
+          toast.update(apagar, {
+            render: 'Erro ao apagar!',
+            type: toast.TYPE.DANGER,
+            containerId: 'A', 
+            autoClose: 10000
+          })
+        }
+      };
+    })
   }
   
   handleInfoVenda(venda) {
