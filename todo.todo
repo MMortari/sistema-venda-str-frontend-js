@@ -6,9 +6,12 @@ Vendas:
   ☐ Apagar venda;
 
 Produtos: 
+  ✔ Listagem @done(19-07-16 14:55)
+  ✔ Apagar @done(19-07-16 14:55)
   ☐ Cadastrar
-    ☐ Fazer modal
-    ☐ Fazer lógica
+    ✔ Fazer modal @done(19-07-16 14:54)
+    ✔ Fazer lógica @done(19-07-16 14:54)
+    ☐ Adicionar mascará no input de preco
   ☐ Editar
     ☐ Fazer modal
     ☐ Fazer lógica

@@ -31,3 +31,8 @@ $width-menu: 180px;
   }
 
 }
+
+// Estilo global para o module 'react-toasty'
+.Toastify__toast { 
+  border-radius: 5px !important;
+}
