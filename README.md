@@ -66,3 +66,6 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+### Run the Fake API
+`json-server server.json -p 3010 -d 1000 --no-delete-cascade --watch`
