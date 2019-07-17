@@ -24,13 +24,12 @@ class Produtos extends Component {
     error: false,
     produtos: [],
     categorias: [],
+    produtoEdita: {},
     showModalNewProduct: false,
+    showModalEditProduct: false
   }
 
   async componentDidMount() {
-    const responseProdutos = await api.get(`/produtos?_expand=categoria`);
-    const produtos = responseProdutos.data;
-
     const responseCategoria = await api.get('/categorias');
     let categorias = [];
     responseCategoria.data.map((data) => categorias.push({ 
@@ -38,13 +37,55 @@ class Produtos extends Component {
       title: data.nome
     }));
 
-    this.setState({ produtos, categorias, loading: false });
+    await this.getProdutosFromAPI();
 
-    console.log("Initial Produtos State -> ", this.state)
+    this.setState({ categorias, loading: false });
+
+    console.log("Initial Produtos State -> ", this.state);
+  }
+
+  getProdutosFromAPI = async () => {
+    const response = await api.get(`/produtos?_expand=categoria`);
+    const produtos = response.data;
+
+    this.setState({ produtos });
   }
 
   // Editar Produtos
-  handleEditaProduto = (produto) => console.log("Editar Produto -> ", produto)
+  handleEditaProduto = produto => {
+    this.setState({ produtoEdita: produto, showModalEditProduct: true });
+    console.log("Editar Produto -> ", produto);
+  }
+  handleSubmitModalEditProduct = async data => {
+    console.log("Submit Edit product -> ", data);
+    let alert = toast("Alterando...", { containerId: 'A', autoClose: false });
+
+    const envia = await api.put(`/produtos/${data.id}`, {
+      ...data,
+      categoriaId: parseInt(data.categoriaId),
+      preco: parseFloat(data.preco)
+    })
+
+    if(envia.status === 201 || envia.status === 200) {
+      await this.getProdutosFromAPI();
+
+      toast.update(alert, {
+        render: 'Alterado com sucesso!',
+        type: toast.TYPE.SUCCESS,
+        containerId: 'A', 
+        autoClose: 5000
+      })
+
+      this.setState({ showModalEditProduct: false });
+    } else {
+      toast.update(alert, {
+        render: 'Erro ao alterar!',
+        type: toast.TYPE.ERROR,
+        containerId: 'A', 
+        autoClose: 5000
+      })
+    }
+  }
 
   // Apagar Produto
   handleDeleteProduto = id => {
@@ -88,8 +129,8 @@ class Produtos extends Component {
   handleSubmitModalNewProduct = async (data) => {
     console.log("Adicionar novo produtos -> ", data);
     let alert = toast("Adicionando...", { containerId: 'A', autoClose: false });
+
     const envia = await api.post(`/produtos`, {
-      id: this.state.produtos[this.state.produtos.length] + 1,
       ...data,
       categoriaId: parseInt(data.categoriaId),
       preco: parseFloat(data.preco),
@@ -105,8 +146,8 @@ class Produtos extends Component {
       })
       this.setState({ produtos: [
         ...this.state.produtos, 
-        { ...envia.data, showModalNewProduct: false, categoria: { nome: find(this.state.categorias, ["id", envia.data.categoriaId]).title } }
-      ] })
+        { ...envia.data, categoria: { nome: find(this.state.categorias, ["id", envia.data.categoriaId]).title } }
+      ], showModalNewProduct: false })
     } else {
       toast.update(alert, {
         render: 'Erro ao adicionar!',
@@ -190,6 +231,62 @@ class Produtos extends Component {
             <Modal.Footer>
               <Button variant="secondary" onClick={() => this.setState({ showModalNewProduct: false })}>Close</Button>
               <button className="btn btn-primary" type="submit">Cadastrar</button>
+            </Modal.Footer>
+          </Unform>
+        </Modal>
+
+        <Modal
+          size="lg"
+          aria-labelledby="contained-modal-title-vcenter"
+          show={this.state.showModalEditProduct}
+          onHide={() => this.setState({ showModalEditProduct: false })}
+          centered
+          >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              Editar Produto
+            </Modal.Title>
+          </Modal.Header>
+          <Unform onSubmit={this.handleSubmitModalEditProduct}>
+            <Modal.Body>
+                <Row>
+                  <Col md={2}>
+                    <Form.Group controlId="formBasicPassword">
+                      <Form.Label>Id</Form.Label>
+                      <Input className="form-control" type="text" name="id" value={this.state.produtoEdita.id} placeholder="Insira o nome do produto" disabled />
+                      {/* <Input type="text" name="nome" value={this.state.produtoEdita.id} placeholder="Insira o nome do produto" disabled /> */}
+                    </Form.Group>
+                  </Col>
+                  <Col md={10}>
+                    <Form.Group controlId="formBasicPassword">
+                      <Form.Label>Nome</Form.Label>
+                      <Input className="form-control" type="text" name="nome" value={this.state.produtoEdita.nome} onChange={e => this.setState({ produtoEdita: { ...this.state.produtoEdita, nome: e.target.value } })} placeholder="Insira o nome do produto" required />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="formBasicPassword">
+                      <Form.Label>Preço</Form.Label>
+                      <Input className="form-control" type="number" name="preco" value={this.state.produtoEdita.preco} onChange={e => this.setState({ produtoEdita: { ...this.state.produtoEdita, preco: parseFloat(e.target.value) } })} placeholder="Insira o nome do produto" required />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="formBasicPassword">
+                      <Form.Label>Categoria</Form.Label>
+                      <Select 
+                        className="form-control" 
+                        name="categoriaId" 
+                        options={this.state.categorias} 
+                        value={this.state.produtoEdita.categoriaId} 
+                        onChange={e => this.setState({ produtoEdita: { ...this.state.produtoEdita, categoriaId: e.target.value } })} 
+                        placeholder="Selecione a categoria do produto" 
+                        required />
+                    </Form.Group>
+                  </Col>
+                </Row>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => this.setState({ showModalEditProduct: false })}>Close</Button>
+              <button className="btn btn-primary" type="submit">Salvar</button>
             </Modal.Footer>
           </Unform>
         </Modal>
