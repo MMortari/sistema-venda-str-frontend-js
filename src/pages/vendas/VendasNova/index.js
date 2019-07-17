@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Form, Row, Col } from 'react-bootstrap';
+import { Form, Row, Col, Modal, Button } from 'react-bootstrap';
 import { Form as Unform, Select, Input } from '@rocketseat/unform';
 import _ from 'lodash';
+import { ToastContainer, toast } from 'react-toastify';
 
 // Service
 import api from '../../../services/api';
@@ -95,12 +96,14 @@ class VendasNova extends Component {
   state = {
     loading: true, // Status de loading
     error: false, // Status de erro
+    hasComanda: false,
     produtos: [], // Lista de produtos
     comandas: [], // Lista de comandas
     comandaSelect: [], // Comanda selecionada
     newComanda: null, // Nova comanda
     totalProdutos: [{ id: null, qtde: 0, total: 0 }], // Totalizador por produto
     total: { qtde: 0, valor: 0 }, // Todal da compra
+    showModalAdicionarComanda: false
   }
 
   async componentDidMount() {
@@ -117,7 +120,7 @@ class VendasNova extends Component {
     produtos.map(data => totalProdutos.push({ id: data.id, qtde: 0, total: 0 }));
 
     // Gera comanda valores das comandas
-    let comandaSelect = [];
+    let comandaSelect = [{ id: null, title: "Select" }];
     comandas.map(data => comandaSelect.push({ id: data.id, title: data.nome }));
 
     // Armazena no state 
@@ -132,13 +135,50 @@ class VendasNova extends Component {
 
   handleSelectComanda = e => {
     console.log("Select Comanda -> ", e.target.value);
-    this.setState({
-      comandaSelecionada: e.target.value
-    })
+    if(e.target.value !== null && e.target.value !== this.state.comandaSelect[0].title){
+      this.setState({
+        comandaSelecionada: e.target.value,
+        hasComanda: true
+      })
+    } else {
+      this.setState({
+        comandaSelecionada: null,
+        hasComanda: false
+      })
+    }
+    
   }
 
-  handleAddNewComanda = () => {
-    console.log("Create comanda");
+  handleCreateNewComanda = async () => {
+    const nome = document.getElementById("new-comanda").value;
+
+    const alert = toast("Cadastrando...", { containerId: "A", autoClose: false })
+    
+    const response = await api.post('/comandas', {
+      nome, 
+      total: 0,
+      vendasId: [],
+      created_at: new Date()
+    })
+
+    if(response.status === 200 || response.status === 201) {
+      toast.update(alert, {
+        render: "Cadastrado com sucesso!",
+        type: toast.TYPE.SUCCESS,
+        containerId: "A",
+        autoClose: 2000
+      })
+
+      console.log(response);
+      this.setState({ comandas: [...this.state.comandas, response.data], comandaSelect: [...this.state.comandaSelect, { id: response.data.id, title: response.data.nome }], showModalAdicionarComanda: false });
+    } else {
+      toast.update(alert, {
+        render: "Erro ao cadastrar!",
+        type: toast.TYPE.ERROR,
+        containerId: "A",
+        autoClose: 2000
+      })
+    }
   }
 
   handleTotalPorProduto = (e, id, valor) => {
@@ -165,13 +205,14 @@ class VendasNova extends Component {
         <Head title = "Nova Venda" breadcrumb = {['Venda', 'Nova Venda']} />
 
         { this.state.loading && (<Loading />) }
+        <ToastContainer enableMultiContainer containerId={'A'} position={toast.POSITION.TOP_RIGHT} />
 
         <Unform onSubmit = { () => this.handleFormSubmit }>
           <Row>
             <Col md={5}>
               <Form.Group controlId = "formBasicEmail" >
                 <Form.Label>Comanda</Form.Label> 
-                <Select className = "form-control" name = "produtos" options = { this.state.comandaSelect } placeholder = "Selecione uma comanda" onChange = { this.handleSelectComanda }/>
+                <Select className="form-control" name="produtos" options={ this.state.comandaSelect } placeholder="Selecione uma comanda" onChange={ this.handleSelectComanda }/>
               </Form.Group>
             </Col> 
             <Col md={6}>
@@ -182,6 +223,7 @@ class VendasNova extends Component {
                   type="text" 
                   name="new-comanda" 
                   placeholder="Insira o nome da nova comanda" 
+                  id="ew-comanda"
                   disabled={this.state.comandaSelecionada != null} />
               </Form.Group> 
             </Col> 
@@ -190,16 +232,16 @@ class VendasNova extends Component {
                 className="btn btn-dark" 
                 style = {{ "marginTop": 32 }} 
                 disabled = {this.state.comandaSelecionada != null} 
-                onClick={this.handleAddNewComanda}><i className="fa fa-plus-circle"></i></button>
+                onClick={this.handleCreateNewComanda}><i className="fa fa-plus-circle"></i></button>
             </Col> 
             <Col md={12}>
               <table className="table" >
                 <thead>
                   <tr>
                     <td>Produto</td>  
-                    <td className = "text-center">Preço</td>
-                    <td className = "text-center">Qtde</td> 
-                    <td className = "text-center">Total</td> 
+                    <td className="text-center">Preço</td>
+                    <td className="text-center">Qtde</td> 
+                    <td className="text-center">Total</td> 
                   </tr> 
                 </thead> 
                 <tbody> 
@@ -215,12 +257,29 @@ class VendasNova extends Component {
                   } 
                 </tbody> 
                 <tfoot>
-                  <tr>
-                    <td></td> 
-                    <td className="text-right font-bold">Total</td> 
-                    <td className="text-center">{this.state.total.qtde}</td> 
-                    <td className="text-right"><DinheiroMask>{this.state.total.valor}</DinheiroMask></td>
-                  </tr> 
+                  { !this.state.hasComanda ? (
+                    <tr>
+                      <td></td> 
+                      <td className="text-right font-bold">Total</td> 
+                      <td className="text-center">{this.state.total.qtde}</td> 
+                      <td className="text-right"><DinheiroMask>{this.state.total.valor}</DinheiroMask></td>
+                    </tr> 
+                  ) : (
+                    <>
+                      <tr>
+                        <td></td> 
+                        <td className="text-right font-bold">Total Venda</td> 
+                        <td className="text-center">{this.state.total.qtde}</td> 
+                        <td className="text-right"><DinheiroMask>{this.state.total.valor}</DinheiroMask></td>
+                      </tr> 
+                      <tr>
+                        <td></td> 
+                        <td className="text-right font-bold">Total Comanda</td> 
+                        <td className="text-center">{this.state.total.qtde}</td> 
+                        <td className="text-right"><DinheiroMask>{this.state.total.valor}</DinheiroMask></td>
+                      </tr> 
+                    </>
+                  ) }
                 </tfoot> 
               </table> 
             </Col> 
@@ -230,6 +289,7 @@ class VendasNova extends Component {
             </Col> 
           </Row> 
         </Unform>
+
       </Fragment>
     )
   }
