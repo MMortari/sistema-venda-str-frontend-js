@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Form, Row, Col, Modal, Button } from 'react-bootstrap';
+import { Form, Row, Col } from 'react-bootstrap';
 import { Form as Unform, Select, Input } from '@rocketseat/unform';
 import _ from 'lodash';
 import { ToastContainer, toast } from 'react-toastify';
@@ -96,13 +96,14 @@ class VendasNova extends Component {
   state = {
     loading: true, // Status de loading
     error: false, // Status de erro
-    hasComanda: false,
+    hasComanda: false, // 
     produtos: [], // Lista de produtos
     comandas: [], // Lista de comandas
     comandaSelect: [], // Comanda selecionada
     newComanda: null, // Nova comanda
     totalProdutos: [{ id: null, qtde: 0, total: 0 }], // Totalizador por produto
     total: { qtde: 0, valor: 0 }, // Todal da compra
+    totalComanda: { valor: 0 }, // Todal da comanda
     showModalAdicionarComanda: false
   }
 
@@ -120,7 +121,7 @@ class VendasNova extends Component {
     produtos.map(data => totalProdutos.push({ id: data.id, qtde: 0, total: 0 }));
 
     // Gera comanda valores das comandas
-    let comandaSelect = [{ id: null, title: "Select" }];
+    let comandaSelect = [{ id: null, title: "Nenhum" }];
     comandas.map(data => comandaSelect.push({ id: data.id, title: data.nome }));
 
     // Armazena no state 
@@ -129,15 +130,54 @@ class VendasNova extends Component {
     console.log("Initial State -> ", this.state)
   }
 
-  handleFormSubmit = data => {
-    console.log("Enviar formulário -> ", data)
+  handleFormSubmit = async data => {
+    const alert = toast("Cadastrando Venda...", { containerId: "A", autoClose: false });
+
+    let produtos = [];
+
+    this.state.produtos.map(produto => {
+      if(data[`produto-${produto.id}`] != "") produtos.push({ qtde: parseInt(data[`produto-${produto.id}`]), id: produto.id })
+    })
+    
+    if(!this.state.hasComanda) {
+      const response = await api.post(`/vendas`, {
+        produtos,
+        total: this.state.total.valor,
+        created_at: new Date()
+      })
+
+      // console.log("Response -> ", response)
+
+      if(response.status === 201) {
+        toast.update(alert, {
+          render: "Cadastro de venda realizado com sucesso!",
+          type: toast.TYPE.SUCCESS,
+          containerId: "A",
+          autoClose: 5000
+        })
+      } else {
+        toast.update(alert, {
+          render: "Erro ao realizar cadastro de venda!",
+          type: toast.TYPE.ERROR,
+          containerId: "A",
+          autoClose: 5000
+        })
+      }
+    } else {}
+    
+    // console.log("Enviar formulário -> ", JSON.stringify(data));
   }
 
   handleSelectComanda = e => {
-    console.log("Select Comanda -> ", e.target.value);
-    if(e.target.value !== null && e.target.value !== this.state.comandaSelect[0].title){
+    const { value } = e.target;
+
+    console.log("Select Comanda -> ", value);
+    if(value !== null && value !== this.state.comandaSelect[0].title){
+      const comanda = _.find(this.state.comandas, ['id', parseInt(value)]);
+      
       this.setState({
-        comandaSelecionada: e.target.value,
+        totalComanda: { valor: comanda.total + this.state.total.valor },
+        comandaSelecionada: value,
         hasComanda: true
       })
     } else {
@@ -152,7 +192,7 @@ class VendasNova extends Component {
   handleCreateNewComanda = async () => {
     const nome = document.getElementById("new-comanda").value;
 
-    const alert = toast("Cadastrando...", { containerId: "A", autoClose: false })
+    const alert = toast("Cadastrando...", { containerId: "A", autoClose: false });
     
     const response = await api.post('/comandas', {
       nome, 
@@ -186,6 +226,7 @@ class VendasNova extends Component {
 
     let produtos = [...this.state.totalProdutos];
     let total = { qtde: 0, valor: 0, };
+    let { totalComanda } = this.state;
     const qtde = parseInt(e.target.value);
 
     produtos[index].total = qtde * valor;
@@ -194,9 +235,10 @@ class VendasNova extends Component {
     produtos.map(data => {
       total.qtde += data.qtde;
       total.valor += data.total;
+      totalComanda.valor += data.total;
     })
 
-    this.setState({ totalProdutos: produtos, total });
+    this.setState({ totalProdutos: produtos, total, totalComanda });
   }
 
   render() {
@@ -207,12 +249,12 @@ class VendasNova extends Component {
         { this.state.loading && (<Loading />) }
         <ToastContainer enableMultiContainer containerId={'A'} position={toast.POSITION.TOP_RIGHT} />
 
-        <Unform onSubmit = { () => this.handleFormSubmit }>
+        <Unform onSubmit={this.handleFormSubmit}>
           <Row>
             <Col md={5}>
               <Form.Group controlId = "formBasicEmail" >
                 <Form.Label>Comanda</Form.Label> 
-                <Select className="form-control" name="produtos" options={ this.state.comandaSelect } placeholder="Selecione uma comanda" onChange={ this.handleSelectComanda }/>
+                <Select className="form-control" name="comanda" options={this.state.comandaSelect} placeholder="Selecione uma comanda" onChange={ this.handleSelectComanda }/>
               </Form.Group>
             </Col> 
             <Col md={6}>
@@ -275,8 +317,8 @@ class VendasNova extends Component {
                       <tr>
                         <td></td> 
                         <td className="text-right font-bold">Total Comanda</td> 
-                        <td className="text-center">{this.state.total.qtde}</td> 
-                        <td className="text-right"><DinheiroMask>{this.state.total.valor}</DinheiroMask></td>
+                        <td className="text-center"></td> 
+                        <td className="text-right"><DinheiroMask>{this.state.totalComanda.valor}</DinheiroMask></td>
                       </tr> 
                     </>
                   ) }

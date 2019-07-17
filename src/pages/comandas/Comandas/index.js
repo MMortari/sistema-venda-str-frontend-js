@@ -41,6 +41,7 @@ class Comandas extends Component {
             <tr>
               <th>Id</th>
               <th className="text-center">Nome</th>
+              <th className="text-center">Vendas</th>
               <th className="text-center">Total</th>
               <th className="text-center w-5">Info</th>
             </tr>
@@ -51,6 +52,7 @@ class Comandas extends Component {
                 <tr key={index}>
                   <td>{data.id}</td>
                   <td className="text-center">{data.nome}</td>
+                  <td className="text-center">{data.vendasId.length}</td>
                   <td className="text-center"><DinheiroMask>{data.total}</DinheiroMask></td>
                   <td className="text-center"><button className="btn btn-info" onClick={() => this.handleInfoComanda(data.id)}><i className="fa fa-info-circle"></i></button></td>
                 </tr>

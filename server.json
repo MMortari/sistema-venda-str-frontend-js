@@ -9,10 +9,9 @@
     },
     {
       "id": 2,
-      "preco": 7,
       "nome": "Caldo",
-      "categoriaId": 1,
-      "created_at": "06/04/2019T09:16:32"
+      "preco": 7,
+      "categoriaId": 1
     },
     {
       "id": 3,
@@ -41,13 +40,6 @@
       "preco": 10,
       "categoriaId": 2,
       "created_at": "2019-07-16T16:32:17.950Z"
-    },
-    {
-      "id": 9,
-      "nome": "Maça",
-      "preco": 10,
-      "categoriaId": 1,
-      "created_at": "2019-07-16T17:04:13.145Z"
     }
   ],
   "categorias": [
@@ -69,44 +61,81 @@
   ],
   "vendas": [
     {
-      "id": 1,
-      "produtosId": [
-        1,
-        2
-      ],
-      "total": 265.9,
-      "created_at": "06/04/2019T09:16:32"
-    },
-    {
       "id": 2,
-      "produtosId": [
-        2
+      "produtos": [
+        {
+          "qtde": 5,
+          "id": 1
+        },
+        {
+          "qtde": 3,
+          "id": 2
+        }
       ],
       "total": 20.9,
       "created_at": "06/04/2019T09:16:32"
     },
     {
-      "id": 3,
-      "produtosId": [
-        1,
-        4
+      "produtos": [
+        {
+          "qtde": 5,
+          "id": 1
+        }
       ],
-      "total": 265.9,
-      "created_at": "06/04/2019T09:16:32"
+      "total": 30,
+      "created_at": "2019-07-17T16:26:03.328Z",
+      "id": 3
+    },
+    {
+      "produtos": [
+        {
+          "qtde": 10,
+          "id": 1
+        },
+        {
+          "qtde": 7,
+          "id": 3
+        },
+        {
+          "qtde": 3,
+          "id": 5
+        }
+      ],
+      "total": 137.5,
+      "created_at": "2019-07-17T16:26:42.909Z",
+      "id": 4
+    },
+    {
+      "produtos": [
+        {
+          "qtde": 1,
+          "id": 1
+        },
+        {
+          "qtde": 2,
+          "id": 2
+        },
+        {
+          "qtde": 2,
+          "id": 4
+        },
+        {
+          "qtde": 3,
+          "id": 5
+        }
+      ],
+      "total": 41.5,
+      "created_at": "2019-07-17T16:29:02.245Z",
+      "id": 5
     }
   ],
   "comandas": [
     {
-      "id": 1,
       "nome": "Matheus",
-      "produtos": [
-        {
-          "id": 1,
-          "qtde": 3
-        }
-      ],
-      "total": 362,
-      "created_at": "06/04/2019T09:16:32"
+      "total": 150,
+      "vendasId": [],
+      "created_at": "2019-07-17T15:44:22.029Z",
+      "id": 1
     }
   ]
 }

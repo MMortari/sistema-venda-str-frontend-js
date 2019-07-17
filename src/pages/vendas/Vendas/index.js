@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { ToastContainer, toast } from 'react-toastify';
@@ -25,12 +25,7 @@ class Vendas extends Component {
     vendas: [],
     produtos: [],
     modalShow: false,
-    vendaInfo: {
-      id: null,
-      total: null,
-      produtosId: [ null ],
-      created_at: null
-    }
+    vendaInfo: {}
   }
 
   async componentDidMount() {
@@ -44,8 +39,6 @@ class Vendas extends Component {
 
     // Salva no state
     this.setState({ vendas, produtos, loading: false });
-
-    // toast.success('Vendas carregadas com sucesso !', {containerId: 'A', autoClose: 15000});
 
     console.log("Vendas -> ", vendas);
   }
@@ -139,7 +132,7 @@ class Vendas extends Component {
               <tr key={index}>
                 <td>{vendas.id}</td>
                 <td className="text-center"><DinheiroMask>{vendas.total}</DinheiroMask></td>
-                <td className="text-center"><b>{vendas.produtosId.length}</b></td>
+                <td className="text-center"><b>{vendas.produtos.reduce((count, data) => count += data.qtde, 0)}</b></td>
                 <td><button className="btn btn-info" onClick={() => {this.handleInfoVenda(vendas)}}><i className="fa fa-info-circle"></i></button></td>
                 <td><button className="btn btn-danger" onClick={() => this.handleDeleteVenda(vendas.id)}><i className="fa fa-trash"></i></button></td>
               </tr>
@@ -156,26 +149,32 @@ class Vendas extends Component {
               <tbody>
                 <tr>
                   <td><b>id</b></td>
-                  <td>{this.state.vendaInfo.id}</td>
+                  <td className="text-center">{this.state.vendaInfo.id}</td>
                 </tr>
                 <tr>
                   <td><b>Total</b></td>
-                  <td>{this.state.vendaInfo.total}</td>
+                  <td className="text-center"><DinheiroMask>{this.state.vendaInfo.total}</DinheiroMask></td>
                 </tr>
                 <tr>
                   <td><b>Produtos</b></td>
                   <td>
-                    {this.state.vendaInfo.produtosId.map((data, index) => (
-                      <Fragment key={index}>
-                        {/* Pequena gambirra, olhar em https://www.freecodecamp.org/forum/t/react-cant-access-a-property-of-an-object-stored-in-state/138169/2 */}
-                        { _.find(this.state.produtos, ["id", data]) && _.find(this.state.produtos, ["id", data]).nome }<br/>
-                      </Fragment>
-                    ))}
+                    <Row>
+                      <Col className="text-center font-weight-bold" md={6} sm={6}>Qtde</Col>
+                      <Col className="font-weight-bold" md={6} sm={6}>Nome</Col>
+                      {this.state.vendaInfo.produtos && this.state.vendaInfo.produtos.map((data, index) => (
+                        <Fragment key={index}>
+                          <Col className="text-center" md={6} sm={6}>{data.qtde}</Col>
+                          <Col md={6} sm={6}>{ _.find(this.state.produtos, ["id", data.id]) && _.find(this.state.produtos, ["id", data.id]).nome }</Col>
+                          {/* Pequena gambirra, olhar em https://www.freecodecamp.org/forum/t/react-cant-access-a-property-of-an-object-stored-in-state/138169/2 */}
+                          
+                        </Fragment>
+                      ))}
+                    </Row>
                   </td>
                 </tr>
                 <tr>
                   <td><b>Data</b></td>
-                  <td>{this.state.vendaInfo.created_at}</td>
+                  <td className="text-center">{this.state.vendaInfo.created_at}</td>
                 </tr>
               </tbody>
             </table>
