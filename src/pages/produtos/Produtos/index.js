@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { firebaseFirestore as db } from './../../../config/firebase';
 import { Form, Modal, Button, Row, Col } from 'react-bootstrap';
 import { Form as Unform, Select, Input } from '@rocketseat/unform';
 import { ToastContainer, toast } from 'react-toastify';
@@ -8,6 +9,7 @@ import withReactContent from 'sweetalert2-react-content';
 
 // Service
 import api from '../../../services/api';
+import firestoreService from './../../../services/firestore';
 // Component
 import Head from '../../../components/Head';
 import DinheiroMask from '../../../components/DinheiroMask'
@@ -26,27 +28,24 @@ class Produtos extends Component {
     categorias: [],
     produtoEdita: {},
     showModalNewProduct: false,
-    showModalEditProduct: false
+    showModalEditProduct: false,
+    teste: []
   }
 
   async componentDidMount() {
-    const responseCategoria = await api.get('/categorias');
-    let categorias = [];
-    responseCategoria.data.map((data) => categorias.push({ 
-      id: data.id, 
-      title: data.nome
-    }));
+    const categorias = await firestoreService.getCategorias();
 
+    this.setState({ categorias });
+    
     await this.getProdutosFromAPI();
-
-    this.setState({ categorias, loading: false });
+    
+    this.setState({ loading: false });
 
     console.log("Initial Produtos State -> ", this.state);
   }
 
   getProdutosFromAPI = async () => {
-    const response = await api.get(`/produtos?_expand=categoria`);
-    const produtos = response.data;
+    const produtos = await firestoreService.getProdutos(this.state.categorias);
 
     this.setState({ produtos });
   }
@@ -60,14 +59,20 @@ class Produtos extends Component {
     console.log("Submit Edit product -> ", data);
     let alert = toast("Alterando...", { containerId: 'A', autoClose: false });
 
-    const envia = await api.put(`/produtos/${data.id}`, {
+    const envia = await firestoreService.updateProdutos({
       ...data,
-      categoriaId: parseInt(data.categoriaId),
+      categoriaId: db.doc(`categoria/${data.categoriaId}`),
       preco: parseFloat(data.preco)
-    })
+    });
+    // const envia = await api.put(`/produtos/${data.id}`, {
+    //   ...data,
+    //   categoriaId: parseInt(data.categoriaId),
+    //   preco: parseFloat(data.preco)
+    // })
 
-    if(envia.status === 201 || envia.status === 200) {
+    if(envia) {
       await this.getProdutosFromAPI();
+      this.setState({ showModalEditProduct: false });
 
       toast.update(alert, {
         render: 'Alterado com sucesso!',
@@ -75,8 +80,6 @@ class Produtos extends Component {
         containerId: 'A', 
         autoClose: 5000
       })
-
-      this.setState({ showModalEditProduct: false });
     } else {
       toast.update(alert, {
         render: 'Erro ao alterar!',
@@ -99,18 +102,18 @@ class Produtos extends Component {
       if(value) {
         let alert = toast("Pagando...", { containerId: 'A', autoClose: false });
 
-        const response = await api.delete(`/produtos/${id}`);
+        let response = await firestoreService.deleteProdutos();
 
-        if(response.status === 200) {
+        if(response) {
+          const produtos = this.state.produtos.filter(data => data.id !== id);
+          this.setState({ produtos });
+
           toast.update(alert, {
             render: 'Apagado com sucesso!',
             type: toast.TYPE.SUCCESS,
             containerId: 'A', 
             autoClose: 5000
           })
-
-          const produtos = this.state.produtos.filter(data => data.id !== id);
-          this.setState({ produtos })
         } else {
           toast.update(alert, {
             render: 'Erro ao apagar!',
@@ -129,25 +132,22 @@ class Produtos extends Component {
   handleSubmitModalNewProduct = async (data) => {
     console.log("Adicionar novo produtos -> ", data);
     let alert = toast("Adicionando...", { containerId: 'A', autoClose: false });
-
-    const envia = await api.post(`/produtos`, {
+    
+    const envia = await firestoreService.createProdutos({
       ...data,
-      categoriaId: parseInt(data.categoriaId),
+      categoriaId: db.doc(`categoria/${data.categoriaId}`),
       preco: parseFloat(data.preco),
       created_at: new Date()
     })
 
-    if(envia.status === 201 || envia.status === 200) {
+    if(envia) {
+      await this.getProdutosFromAPI();
       toast.update(alert, {
         render: 'Adicionado com sucesso!',
         type: toast.TYPE.SUCCESS,
         containerId: 'A', 
         autoClose: 5000
       })
-      this.setState({ produtos: [
-        ...this.state.produtos, 
-        { ...envia.data, categoria: { nome: find(this.state.categorias, ["id", envia.data.categoriaId]).title } }
-      ], showModalNewProduct: false })
     } else {
       toast.update(alert, {
         render: 'Erro ao adicionar!',
@@ -171,8 +171,7 @@ class Produtos extends Component {
         <table className="table table-borded">
           <thead>
             <tr>
-              <th className="w-10">id</th>
-              <th className="text-center">Nome</th>
+              <th>Nome</th>
               <th className="text-center">Preço</th>
               <th className="text-center">Categoria</th>
               <th className="w-5 text-center">Editar</th>
@@ -180,10 +179,9 @@ class Produtos extends Component {
             </tr>
           </thead>
           <tbody>
-            { this.state.produtos.map((produto, index) => (
-              <tr key={index}>
-                <td>{produto.id}</td>
-                <td className="text-center">{produto.nome}</td>
+            { this.state.produtos.map((produto) => (
+              <tr key={produto.id}>
+                <td>{produto.nome}</td>
                 <td className="text-center"><DinheiroMask>{produto.preco}</DinheiroMask></td>
                 <td className="text-center">{produto.categoria.nome}</td>
                 <td className="text-center"><button className="btn btn-info" onClick={() => this.handleEditaProduto(produto)}><i className="fa fa-edit"></i></button></td>
