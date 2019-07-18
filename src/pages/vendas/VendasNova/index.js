@@ -136,7 +136,8 @@ class VendasNova extends Component {
     let produtos = [];
 
     this.state.produtos.map(produto => {
-      if(data[`produto-${produto.id}`] != "") produtos.push({ qtde: parseInt(data[`produto-${produto.id}`]), id: produto.id })
+      if(data[`produto-${produto.id}`] !== "") produtos.push({ qtde: parseInt(data[`produto-${produto.id}`]), id: produto.id })
+      return null;
     })
     
     if(!this.state.hasComanda) {
@@ -236,6 +237,7 @@ class VendasNova extends Component {
       total.qtde += data.qtde;
       total.valor += data.total;
       totalComanda.valor += data.total;
+      return null;
     })
 
     this.setState({ totalProdutos: produtos, total, totalComanda });
