@@ -17,7 +17,11 @@ export default class firestoreService {
     })
   }
 
-  static async getProdutos(categorias) {
+  /**
+   * @param { string[] } categorias 
+   * @returns { Promise } 
+   */
+  static async getProdutos(categorias = this.getCategorias()) {
     return await new Promise((resolve, reject) => {
       db.collection('produtos').get()
         .then((snapshot) => {
@@ -50,6 +54,44 @@ export default class firestoreService {
   static async deleteProdutos(id) {
     return await new Promise((resolve, reject) => {
       db.collection('produtos').doc(`${id}`).delete()
+        .then(() => resolve(true))
+        .catch(() => reject(false))
+    });
+  }
+
+  static async getVendas() {
+    return await new Promise((resolve, reject) => {
+      db.collection('vendas').get()
+        .then((snapshot) => {
+          let vendas = [];
+          snapshot.forEach((doc) => {
+            vendas.push({ ...doc.data(), id: doc.id  })
+          });
+          resolve(vendas)
+        })
+        .catch(err => reject(err));
+    })
+  }
+  static async createVendas(data) { 
+    return await new Promise((resolve, reject) => {
+      db.collection('vendas').add(data)
+        .then(() => resolve(true))
+        .catch(() => reject(false));
+    });
+  }
+  static async updateVendas(produto) { 
+    return await new Promise((resolve, reject) => {
+      db.collection('vendas').doc(produto.id).set(produto)
+        .then(data => {
+          console.log("update venda -> ", data)
+          resolve(true)
+        })
+        .catch(() => reject(false));
+    });
+  }
+  static async deleteVendas(id) {
+    return await new Promise((resolve, reject) => {
+      db.collection('vendas').doc(`${id}`).delete()
         .then(() => resolve(true))
         .catch(() => reject(false))
     });
