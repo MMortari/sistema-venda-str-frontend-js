@@ -34,8 +34,12 @@ class Produtos extends Component {
 
   async componentDidMount() {
     const categorias = await firestoreService.getCategorias();
+    let categoriasSelect = [];
+    categoriasSelect = categorias.map(data => {
+      return { id: data.id, title: data.nome }
+    })
 
-    this.setState({ categorias });
+    this.setState({ categorias: categoriasSelect });
     
     await this.getProdutosFromAPI();
     
@@ -148,6 +152,7 @@ class Produtos extends Component {
         containerId: 'A', 
         autoClose: 5000
       })
+      this.setState({ showModalNewProduct: false });
     } else {
       toast.update(alert, {
         render: 'Erro ao adicionar!',
@@ -179,7 +184,7 @@ class Produtos extends Component {
             </tr>
           </thead>
           <tbody>
-            { this.state.produtos.map((produto) => (
+            { this.state.produtos.length > 0 && this.state.produtos.map((produto) => (
               <tr key={produto.id}>
                 <td>{produto.nome}</td>
                 <td className="text-center"><DinheiroMask>{produto.preco}</DinheiroMask></td>
