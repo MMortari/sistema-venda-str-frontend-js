@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 
 // Service
 import api from '../../../services/api';
+import firestoreService from './../../../services/firestore';
 // Components
 import Head from '../../../components/Head';
 import DinheiroMask from '../../../components/DinheiroMask';
@@ -109,8 +110,8 @@ class VendasNova extends Component {
 
   async componentDidMount() {
     // Pega os produtos da API
-    const responseProdutos = await api.get(`/produtos`);
-    const produtos = responseProdutos.data;
+    // const responseProdutos = await api.get(`/produtos`);
+    const produtos = await firestoreService.getProdutos();
 
     // Pega as comandas da API
     const responseComandas = await api.get(`/comandas`);
