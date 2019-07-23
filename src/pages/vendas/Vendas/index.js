@@ -2,18 +2,17 @@ import React, { Component, Fragment } from 'react';
 import { Modal, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import moment from 'moment';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 // Services
-import api from '../../../services/api';
 import firestoreService from '../../../services/firestore';
 // Components
 import Head from '../../../components/Head';
 import DinheiroMask from '../../../components/DinheiroMask';
+import DataMask from '../../../components/DataMask';
 import Loading from '../../../components/Loading';
 // Style
 import './style.scss';
@@ -124,7 +123,7 @@ class Vendas extends Component {
                 <td>{index + 1}</td>
                 <td className="text-center"><DinheiroMask>{vendas.total}</DinheiroMask></td>
                 <td className="text-center"><b>{vendas.produtos.reduce((count, data) => count += data.qtde, 0)}</b></td>
-                <td className="text-center">{moment(vendas.created_at.seconds * 1000).format("DD/MM/YYYY HH:mm")}</td>
+                <td className="text-center"><DataMask>{vendas.created_at.seconds * 1000}</DataMask></td>
                 <td><button className="btn btn-info" onClick={() => this.handleInfoVenda(vendas)}><i className="fa fa-info-circle"></i></button></td>
                 <td><button className="btn btn-danger" onClick={() => this.handleDeleteVenda(vendas.id)}><i className="fa fa-trash"></i></button></td>
               </tr>

@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { ToastContainer, toast } from 'react-toastify';
 
 // Service
-import api from '../../../services/api';
 import firestoreService from './../../../services/firestore';
 // Components
 import Head from '../../../components/Head';
@@ -97,7 +96,7 @@ class VendasNova extends Component {
   state = {
     loading: true, // Status de loading
     error: false, // Status de erro
-    hasComanda: false, // 
+    hasComanda: false, // Status da comanda (se tem uma comanda selecionada ou não)
     produtos: [], // Lista de produtos
     comandas: [], // Lista de comandas
     comandaSelect: [], // Comanda selecionada
@@ -110,12 +109,10 @@ class VendasNova extends Component {
 
   async componentDidMount() {
     // Pega os produtos da API
-    // const responseProdutos = await api.get(`/produtos`);
     const produtos = await firestoreService.getProdutos();
 
     // Pega as comandas da API
-    const responseComandas = await api.get(`/comandas`);
-    const comandas = responseComandas.data;
+    const comandas = await firestoreService.getComandas();
 
     // Gera total produtos
     let totalProdutos = [];
@@ -128,7 +125,7 @@ class VendasNova extends Component {
     // Armazena no state 
     this.setState({ produtos, comandas, totalProdutos, comandaSelect, loading: false });
 
-    console.log("Initial State -> ", this.state)
+    console.log("Initial State -> ", this.state);
   }
 
   handleFormSubmit = async data => {
@@ -141,41 +138,45 @@ class VendasNova extends Component {
       return null;
     })
     
-    if(!this.state.hasComanda) {
-      const response = await api.post(`/vendas`, {
-        produtos,
-        total: this.state.total.valor,
-        created_at: new Date()
-      })
+    const vendaEnvia = await firestoreService.createVendas({
+      produtos,
+      total: this.state.total.valor,
+      created_at: new Date()
+    })
 
-      // console.log("Response -> ", response)
+    if(this.state.hasComanda) {
 
-      if(response.status === 201) {
-        toast.update(alert, {
-          render: "Cadastro de venda realizado com sucesso!",
-          type: toast.TYPE.SUCCESS,
-          containerId: "A",
-          autoClose: 5000
-        })
-      } else {
-        toast.update(alert, {
-          render: "Erro ao realizar cadastro de venda!",
-          type: toast.TYPE.ERROR,
-          containerId: "A",
-          autoClose: 5000
-        })
-      }
-    } else {}
+      var updateComanda = await firestoreService.updateComandas({
+        id: this.state.comandaSelecionada.id, 
+        total: this.state.totalComanda.valor,
+        vendasId: vendaEnvia.data.id
+      });
+
+    }
     
+    if(vendaEnvia.status && updateComanda.status) {
+      toast.update(alert, {
+        render: "Cadastro de venda realizado com sucesso!",
+        type: toast.TYPE.SUCCESS,
+        containerId: "A",
+        autoClose: 5000
+      })
+    } else {
+      toast.update(alert, {
+        render: "Erro ao realizar cadastro de venda!",
+        type: toast.TYPE.ERROR,
+        containerId: "A",
+        autoClose: 5000
+      })
+    }
     // console.log("Enviar formulário -> ", JSON.stringify(data));
   }
 
   handleSelectComanda = e => {
     const { value } = e.target;
-
-    console.log("Select Comanda -> ", value);
+    
     if(value !== null && value !== this.state.comandaSelect[0].title){
-      const comanda = _.find(this.state.comandas, ['id', parseInt(value)]);
+      const comanda = _.find(this.state.comandas, ["id", value]);
       
       this.setState({
         totalComanda: { valor: comanda.total + this.state.total.valor },
@@ -193,34 +194,43 @@ class VendasNova extends Component {
 
   handleCreateNewComanda = async () => {
     const nome = document.getElementById("new-comanda").value;
-
-    const alert = toast("Cadastrando...", { containerId: "A", autoClose: false });
     
-    const response = await api.post('/comandas', {
-      nome, 
-      total: 0,
-      vendasId: [],
-      created_at: new Date()
-    })
-
-    if(response.status === 200 || response.status === 201) {
-      toast.update(alert, {
-        render: "Cadastrado com sucesso!",
-        type: toast.TYPE.SUCCESS,
-        containerId: "A",
-        autoClose: 2000
+    if(nome !== "") {
+      const alert = toast("Cadastrando...", { containerId: "A", autoClose: false });
+      
+      const response = await firestoreService.createComandas({
+        nome, 
+        total: 0,
+        vendasId: [],
+        created_at: new Date()
       })
-
-      console.log(response);
-      this.setState({ comandas: [...this.state.comandas, response.data], comandaSelect: [...this.state.comandaSelect, { id: response.data.id, title: response.data.nome }], showModalAdicionarComanda: false });
+  
+      if(response.status) {
+        toast.update(alert, {
+          render: "Cadastrado com sucesso!",
+          type: toast.TYPE.SUCCESS,
+          containerId: "A",
+          autoClose: 2000
+        })
+  
+        console.log(response);
+        this.setState({ 
+          comandas: [...this.state.comandas, response.data], 
+          comandaSelect: [...this.state.comandaSelect, { id: response.data.id, title: nome }], 
+          showModalAdicionarComanda: false 
+        });
+      } else {
+        toast.update(alert, {
+          render: "Erro ao cadastrar!",
+          type: toast.TYPE.ERROR,
+          containerId: "A",
+          autoClose: 2000
+        })
+      }
     } else {
-      toast.update(alert, {
-        render: "Erro ao cadastrar!",
-        type: toast.TYPE.ERROR,
-        containerId: "A",
-        autoClose: 2000
-      })
+      toast.info("Insira um nome para cadastrar", { containerId: "A", autoClose: 2000 });
     }
+
   }
 
   handleTotalPorProduto = (e, id, valor) => {
@@ -228,7 +238,7 @@ class VendasNova extends Component {
 
     let produtos = [...this.state.totalProdutos];
     let total = { qtde: 0, valor: 0, };
-    let { totalComanda } = this.state;
+    let totalComanda = { valor: this.state.comandaSelecionada.total };
     const qtde = parseInt(e.target.value);
 
     produtos[index].total = qtde * valor;
@@ -266,7 +276,7 @@ class VendasNova extends Component {
                 <Input
                   className="form-control" 
                   type="text" 
-                  name="new-comanda" 
+                  name="new-comanda"  
                   placeholder="Insira o nome da nova comanda" 
                   id="ew-comanda"
                   disabled={this.state.comandaSelecionada != null} />
@@ -276,6 +286,7 @@ class VendasNova extends Component {
               <button 
                 className="btn btn-dark" 
                 style = {{ "marginTop": 32 }} 
+                type="button"
                 disabled = {this.state.comandaSelecionada != null} 
                 onClick={this.handleCreateNewComanda}><i className="fa fa-plus-circle"></i></button>
             </Col> 

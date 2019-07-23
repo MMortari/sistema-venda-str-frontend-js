@@ -37,25 +37,22 @@ export default class firestoreService {
   static async createProdutos(data) { 
     return await new Promise((resolve, reject) => {
       db.collection('produtos').add(data)
-        .then(() => resolve(true))
-        .catch(() => reject(false));
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }));
     });
   }
   static async updateProdutos(produto) { 
     return await new Promise((resolve, reject) => {
       db.collection('produtos').doc(produto.id).set(produto)
-        .then(data => {
-          console.log("update produto -> ", data)
-          resolve(true)
-        })
-        .catch(() => reject(false));
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }));
     });
   }
   static async deleteProdutos(id) {
     return await new Promise((resolve, reject) => {
       db.collection('produtos').doc(`${id}`).delete()
-        .then(() => resolve(true))
-        .catch(() => reject(false))
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }))
     });
   }
 
@@ -69,31 +66,63 @@ export default class firestoreService {
           });
           resolve(vendas)
         })
-        .catch(err => reject(err));
+        .catch((err) => reject({ status: false, data: err }));
     })
   }
-  static async createVendas(data) { 
+  static async createVendas(venda) { 
     return await new Promise((resolve, reject) => {
-      db.collection('vendas').add(data)
-        .then(() => resolve(true))
-        .catch(() => reject(false));
+      db.collection('vendas').add(venda)
+        .then(data => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }));
     });
   }
   static async updateVendas(produto) { 
     return await new Promise((resolve, reject) => {
       db.collection('vendas').doc(produto.id).set(produto)
-        .then(data => {
-          console.log("update venda -> ", data)
-          resolve(true)
-        })
-        .catch(() => reject(false));
+        .then(data => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }));
     });
   }
   static async deleteVendas(id) {
     return await new Promise((resolve, reject) => {
       db.collection('vendas').doc(`${id}`).delete()
-        .then(() => resolve(true))
-        .catch(() => reject(false))
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }))
+    });
+  }
+
+  static async getComandas() {
+    return await new Promise((resolve, reject) => {
+      db.collection('comandas').get()
+        .then((snapshot) => {
+          let comandas = [];
+          snapshot.forEach((doc) => {
+            comandas.push({ ...doc.data(), id: doc.id  })
+          });
+          resolve(comandas);
+        })
+        .catch((err) => reject({ status: false, data: err }));
+    })
+  }
+  static async createComandas(data) { 
+    return await new Promise((resolve, reject) => {
+      db.collection('comandas').add(data)
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }));
+    });
+  }
+  static async updateComandas(produto) { 
+    return await new Promise((resolve, reject) => {
+      db.collection('comandas').doc(produto.id).update(produto)
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }));
+    });
+  }
+  static async deleteComandas(id) {
+    return await new Promise((resolve, reject) => {
+      db.collection('comandas').doc(`${id}`).delete()
+        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .catch((err) => reject({ status: false, data: err }))
     });
   }
 

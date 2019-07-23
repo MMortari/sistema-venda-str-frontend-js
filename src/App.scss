@@ -1,3 +1,4 @@
+@import './style/colors.scss';
 
 $header-height: 50px;
 $width-menu: 180px;
@@ -27,6 +28,14 @@ $width-menu: 180px;
       width: calc(100% - #{$width-menu});
       padding: 15px;
       overflow: auto;
+      background-color: $background-color;
+
+      & > .container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 15px 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.17);
+      }
     }
   }
 
@@ -35,4 +44,18 @@ $width-menu: 180px;
 // Estilo global para o module 'react-toasty'
 .Toastify__toast { 
   border-radius: 5px !important;
+}
+
+@media (max-width: 918px) {
+  aside {
+    display: none;
+  }
+  main {
+    width: 100% !important;
+  }
+  header {
+    .button--open-menu {
+      display: block !important;
+    }
+  }
 }

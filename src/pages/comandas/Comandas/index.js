@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 
 // Services
-import api from '../../../services/api';
+// import api from '../../../services/api';
+import firestoreService from './../../../services/firestore';
 // Components
 import Head from './../../../components/Head';
 import DinheiroMask from './../../../components/DinheiroMask';
@@ -18,8 +19,8 @@ class Comandas extends Component {
 
   async componentDidMount() {
     // Pega as comandas da API
-    const responseComandas = await api.get(`/comandas`);
-    const comandas = responseComandas.data;
+    // const responseComandas = await api.get(`/comandas`);
+    const comandas = await firestoreService.getComandas();
 
     // Armazena no state
     this.setState({ comandas, loading: false });
@@ -49,8 +50,8 @@ class Comandas extends Component {
           <tbody>
             {
               this.state.comandas.map((data, index) => (
-                <tr key={index}>
-                  <td>{data.id}</td>
+                <tr key={data.id}>
+                  <td>{index + 1}</td>
                   <td className="text-center">{data.nome}</td>
                   <td className="text-center">{data.vendasId.length}</td>
                   <td className="text-center"><DinheiroMask>{data.total}</DinheiroMask></td>

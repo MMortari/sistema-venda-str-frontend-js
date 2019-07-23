@@ -4,14 +4,16 @@ import './style.scss';
 
 const Header = () => (
   <header>
-    <h1>Header</h1>
-    {/* <div>
-      <ul>
-        <li>Link</li>
-        <li>Link</li>
-        <li>Link</li>
-      </ul>
-    </div> */}
+    <div>
+      <button className="btn btn-light button--open-menu">
+        <i className="fa fa-bars"></i>
+      </button>
+    </div>
+    <div>
+      <h1>Header</h1>
+    </div>
+    <div>
+    </div>
   </header>
 )
 

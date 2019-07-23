@@ -9,6 +9,10 @@ header {
   color: $header-text-color;
   z-index: 15;
 
+  .button--open-menu {
+    display: none;
+  }
+
   h1 {
     margin: 0;
     font-size: 20px;

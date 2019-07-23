@@ -3,12 +3,10 @@ import { firebaseFirestore as db } from './../../../config/firebase';
 import { Form, Modal, Button, Row, Col } from 'react-bootstrap';
 import { Form as Unform, Select, Input } from '@rocketseat/unform';
 import { ToastContainer, toast } from 'react-toastify';
-import { find } from 'lodash';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 // Service
-import api from '../../../services/api';
 import firestoreService from './../../../services/firestore';
 // Component
 import Head from '../../../components/Head';
@@ -68,11 +66,6 @@ class Produtos extends Component {
       categoriaId: db.doc(`categoria/${data.categoriaId}`),
       preco: parseFloat(data.preco)
     });
-    // const envia = await api.put(`/produtos/${data.id}`, {
-    //   ...data,
-    //   categoriaId: parseInt(data.categoriaId),
-    //   preco: parseFloat(data.preco)
-    // })
 
     if(envia) {
       await this.getProdutosFromAPI();
@@ -188,7 +181,7 @@ class Produtos extends Component {
               <tr key={produto.id}>
                 <td>{produto.nome}</td>
                 <td className="text-center"><DinheiroMask>{produto.preco}</DinheiroMask></td>
-                <td className="text-center">{produto.categoria.nome}</td>
+                <td className="text-center">{produto.categoria.title}</td>
                 <td className="text-center"><button className="btn btn-info" onClick={() => this.handleEditaProduto(produto)}><i className="fa fa-edit"></i></button></td>
                 <td><button className="btn btn-danger" onClick={() => this.handleDeleteProduto(produto.id)}><i className="fa fa-trash"></i></button></td>
               </tr>
@@ -253,14 +246,14 @@ class Produtos extends Component {
           <Unform onSubmit={this.handleSubmitModalEditProduct}>
             <Modal.Body>
                 <Row>
-                  <Col md={2}>
+                  <Col md={4}>
                     <Form.Group controlId="formBasicPassword">
                       <Form.Label>Id</Form.Label>
                       <Input className="form-control" type="text" name="id" value={this.state.produtoEdita.id} placeholder="Insira o nome do produto" disabled />
                       {/* <Input type="text" name="nome" value={this.state.produtoEdita.id} placeholder="Insira o nome do produto" disabled /> */}
                     </Form.Group>
                   </Col>
-                  <Col md={10}>
+                  <Col md={8}>
                     <Form.Group controlId="formBasicPassword">
                       <Form.Label>Nome</Form.Label>
                       <Input className="form-control" type="text" name="nome" value={this.state.produtoEdita.nome} onChange={e => this.setState({ produtoEdita: { ...this.state.produtoEdita, nome: e.target.value } })} placeholder="Insira o nome do produto" required />
