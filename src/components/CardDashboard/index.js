@@ -3,11 +3,11 @@ import React from 'react';
 // Style
 import './style.scss';
 
-const CardDashboard = ({ children }) => (
+const CardDashboard = ({ title, describe, children }) => (
   <div className="cardDashboard">
     <div className="card-left">
-      <p className="title">Vendas</p>
-      <span className="describe">R$ 203,36</span>
+      <p className="title">{title}</p>
+      <span className="describe">{describe}</span>
     </div>
     <div className="card-right">
       { children }

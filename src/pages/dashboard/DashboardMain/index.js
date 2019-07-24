@@ -1,9 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import Chart from 'react-apexcharts';
 
+// Service
+import firestoreService from '../../../services/firestore';
 // Components
 import Head from '../../../components/Head';
 import CardDashboard from '../../../components/CardDashboard';
+import DinheiroMask from '../../../components/DinheiroMask';
 import Loading from '../../../components/Loading';
 // Style
 import './style.scss';
@@ -42,23 +45,40 @@ class DashboardMain extends Component {
           y: {
             title: {
               formatter: function (seriesName) {
-                return ''
+                return 'Banana'
               }
             }
           },
           marker: {
-            show: false
+            show: true
           }
         }
       },
       seriesSpark4: [{
         data: [15, 75, 47, 65, 14, 2, 41, 54, 4, 27, 15]
       }],
-    }
+    },
+    vendas: [],
+    totalVendas: 0,
+    totalComandas: 0,
   }
 
-  componentDidMount() {
-    console.log("DashboardMain")
+  async componentDidMount() {
+    console.time("getVendas")
+    // Get vendas from API
+    const vendas = await firestoreService.getVendas();
+    console.timeEnd("getVendas");
+    // Get comandas from API
+    console.time("getComandas");
+    const comandas = await firestoreService.getComandas();
+    console.timeEnd("getComandas");
+
+    const totalVendas = await vendas.reduce((prev, data) => prev + data.total, 0);
+    const totalComandas = await comandas.reduce((prev, data) => prev + data.total, 0);
+
+    this.setState({ vendas, totalVendas, totalComandas });
+
+    console.log("Initial state dashboard -> ", this.state);
   }
 
   render() {
@@ -70,8 +90,8 @@ class DashboardMain extends Component {
 
         <div className="row">
 
-          <div className="col-4">
-            <CardDashboard>
+          <div className="col-md-6 col-lg-4">
+            <CardDashboard title="Vendas" describe={<DinheiroMask>{this.state.totalVendas}</DinheiroMask>}>
               <Chart 
                 options={this.state.chartVendas.chartOptionsSparkLine}
                 series={this.state.chartVendas.seriesSpark4}
@@ -81,35 +101,16 @@ class DashboardMain extends Component {
               />
             </CardDashboard>
           </div>
-
-          <div className="col-4">
-            <div className="card">
-              <div className="card-header">Vendas</div>
-              <div className="card-body">
-                <h5 className="card-title">Título de Card Primary</h5>
-                <p className="card-text">Um exemplo de texto rápido para construir o título do card e fazer preencher o conteúdo do card.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-4">
-            <div className="card">
-              <div className="card-header">Lucro</div>
-              <div className="card-body">
-                <h5 className="card-title">Título de Card Primary</h5>
-                <p className="card-text">Um exemplo de texto rápido para construir o título do card e fazer preencher o conteúdo do card.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-4">
-            <div className="card">
-              <div className="card-header">Comandas</div>
-              <div className="card-body">
-                <h5 className="card-title">Título de Card Primary</h5>
-                <p className="card-text">Um exemplo de texto rápido para construir o título do card e fazer preencher o conteúdo do card.</p>
-              </div>
-            </div>
+          <div className="col-md-6 col-lg-4">
+            <CardDashboard title="Comandas" describe={<DinheiroMask>{this.state.totalComandas}</DinheiroMask>}>
+              <Chart 
+                options={this.state.chartVendas.chartOptionsSparkLine}
+                series={this.state.chartVendas.seriesSpark4}
+                type="line"
+                width="200"
+                height="60"
+              />
+            </CardDashboard>
           </div>
 
         </div>

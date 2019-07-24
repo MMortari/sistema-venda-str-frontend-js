@@ -2,7 +2,7 @@ Dashboard:
   
 
 Vendas:
-  ☐ Informações dos produtos nas informações de vendas;
+  ✔ Informações dos produtos nas informações de vendas; @done(19-07-24 09:14)
   ☐ Apagar venda;
 
 Produtos: 
@@ -12,8 +12,10 @@ Produtos:
     ✔ Fazer modal @done(19-07-16 14:54)
     ✔ Fazer lógica @done(19-07-16 14:54)
     ☐ Adicionar mascará no input de preco
-  ☐ Editar
-    ☐ Fazer modal
-    ☐ Fazer lógica
+  ✔ Editar @done(19-07-24 09:14)
+    ✔ Fazer modal @done(19-07-24 09:14)
+    ✔ Fazer lógica @done(19-07-24 09:14)
   
 Comandas:
+  ✔ Listagem @done(19-07-24 08:21)
+  ✔ Informações @done(19-07-24 09:57)
