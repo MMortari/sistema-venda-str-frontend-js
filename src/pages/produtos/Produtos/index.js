@@ -67,7 +67,7 @@ class Produtos extends Component {
       preco: parseFloat(data.preco)
     });
 
-    if(envia) {
+    if(envia.status) {
       await this.getProdutosFromAPI();
       this.setState({ showModalEditProduct: false });
 
@@ -99,9 +99,9 @@ class Produtos extends Component {
       if(value) {
         let alert = toast("Pagando...", { containerId: 'A', autoClose: false });
 
-        let response = await firestoreService.deleteProdutos();
+        let response = await firestoreService.deleteProdutos(id);
 
-        if(response) {
+        if(response.status) {
           const produtos = this.state.produtos.filter(data => data.id !== id);
           this.setState({ produtos });
 
