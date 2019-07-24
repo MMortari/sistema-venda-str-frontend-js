@@ -8,6 +8,7 @@ import firestoreService from './../../../services/firestore';
 // Components
 import Head from './../../../components/Head';
 import DinheiroMask from './../../../components/DinheiroMask';
+import DataMask from './../../../components/DataMask';
 import Loading from './../../../components/Loading';
 // Style
 import './style.scss';
@@ -106,7 +107,29 @@ class Comandas extends Component {
               return (
                 <Fragment key={index}>
                   <h4>Vendas</h4>
-                  <p>{JSON.stringify(venda)}</p>
+                  <table className="table">
+                    <tbody>
+                      <tr>
+                        <td><b>Total</b></td>
+                        <td><DinheiroMask>{venda.total}</DinheiroMask></td>
+                      </tr>
+                      <tr>
+                        <td><b>Produtos</b></td>
+                        <td>{venda.produtos.map(data => {
+                          const produto = _.find(this.state.produtos, ["id", data.id]);
+                          return (
+                            <Fragment key={data.id}>
+                              {produto.nome} - {data.qtde} Uni<br />
+                            </Fragment>
+                          )
+                        })}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Data</b></td>
+                        <td><DataMask>{venda.created_at.seconds * 1000}</DataMask></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </Fragment>
               )
             })}
