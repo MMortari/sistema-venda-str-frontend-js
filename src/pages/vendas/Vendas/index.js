@@ -78,9 +78,13 @@ class Vendas extends Component {
     })
   }
   
-  handleInfoVenda = venda => {
-    console.log("Venda -> ", venda);
-    this.setState({ modalShow: true, vendaInfo: venda });
+  handleInfoVenda = async vendaInfo => {
+    console.log("Venda -> ", vendaInfo);
+
+    await this.setState({ vendaInfo, modalShow: true });
+
+    console.log("State info -> ", this.state)
+    // this.setState({ modalShow: true, vendaInfo: venda });
   }
 
   handleCloseModal = () => this.setState({ vendaInfo: {}, modalShow: false, });
@@ -150,14 +154,12 @@ class Vendas extends Component {
                   <td><b>Produtos</b></td>
                   <td>
                     <Row>
-                      <Col className="text-center font-weight-bold" md={6} sm={6}>Qtde</Col>
+                      <Col className="text-right font-weight-bold" md={6} sm={6}>Qtde</Col>
                       <Col className="font-weight-bold" md={6} sm={6}>Nome</Col>
                       {this.state.vendaInfo.produtos && this.state.vendaInfo.produtos.map((data, index) => (
                         <Fragment key={index}>
-                          <Col className="text-center" md={6} sm={6}>{data.qtde}</Col>
-                          <Col md={6} sm={6}>{ _.find(this.state.produtos, ["id", data.id]) && _.find(this.state.produtos, ["id", data.id]).nome }</Col>
-                          {/* Pequena gambirra, olhar em https://www.freecodecamp.org/forum/t/react-cant-access-a-property-of-an-object-stored-in-state/138169/2 */}
-                          
+                          <Col className="text-right" md={6} sm={6}>{data.qtde}</Col>
+                          <Col md={6} sm={6}>{ _.find(this.state.produtos, ["id", data.id]) && _.find(this.state.produtos, ["id", data.id]).nome }</Col>                       
                         </Fragment>
                       ))}
                     </Row>
@@ -165,7 +167,7 @@ class Vendas extends Component {
                 </tr>
                 <tr>
                   <td><b>Data</b></td>
-                  <td className="text-center">{this.state.vendaInfo.created_at}</td>
+                  <td className="text-center">{this.state.vendaInfo.created_at && (<DataMask>{this.state.vendaInfo.created_at.seconds}</DataMask>)}</td>
                 </tr>
               </tbody>
             </table>
