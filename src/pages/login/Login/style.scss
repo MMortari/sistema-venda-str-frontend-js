@@ -1,0 +1,28 @@
+@import './../../../style/colors.scss';
+
+.login {
+  height: 100vh;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $header-background;
+
+  h1 {
+    margin-bottom: 30px;
+  }
+
+  .card-login {
+    box-shadow: 0px 0px 8px #0000004f;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 10px;
+    max-width: 320px;
+    background-color: white;
+
+    input {
+      margin-bottom: 10px;
+    }
+  }
+}
