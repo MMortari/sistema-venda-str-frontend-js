@@ -128,6 +128,8 @@ export default class firestoreService {
 
 }
 
+// Principal -> https://cloud.google.com/firestore/docs/how-to
+
 // Adicionar -> https://firebase.google.com/docs/firestore/manage-data/add-data?authuser=1
 // Apagar -> https://firebase.google.com/docs/firestore/manage-data/delete-data?authuser=1
 

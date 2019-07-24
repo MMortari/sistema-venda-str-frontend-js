@@ -1,4 +1,6 @@
 import React, { Component, Fragment } from 'react';
+import { Modal } from 'react-bootstrap';
+import _ from 'lodash';
 
 // Services
 // import api from '../../../services/api';
@@ -14,21 +16,31 @@ class Comandas extends Component {
 
   state = {
     loading: true,
-    comandas: []
+    vendas: [],
+    produtos: [],
+    comandas: [],
+    comandaInfo: {},
+    showModalInfo: false
   }
 
   async componentDidMount() {
     // Pega as comandas da API
-    // const responseComandas = await api.get(`/comandas`);
     const comandas = await firestoreService.getComandas();
 
+    // Pega as vendas da API
+    const vendas = await firestoreService.getVendas();
+
+    // Pega as produtos da API
+    const produtos = await firestoreService.getProdutos();
+
     // Armazena no state
-    this.setState({ comandas, loading: false });
+    this.setState({ comandas, vendas, produtos, loading: false });
+
+    console.log("Initial state comandas -> ", this.state);
   }
 
-  handleInfoComanda = id => {
-    console.log("Abrir modal com info da comanda -> ", id);
-  }
+  handleOpenModalInfoComanda = comanda => this.setState({ comandaInfo: comanda, showModalInfo: true });
+  handleCloseModalInfoComanda = () => this.setState({ comandaInfo: {}, showModalInfo: false });
 
   render() {
     return (
@@ -55,12 +67,51 @@ class Comandas extends Component {
                   <td className="text-center">{data.nome}</td>
                   <td className="text-center">{data.vendasId.length}</td>
                   <td className="text-center"><DinheiroMask>{data.total}</DinheiroMask></td>
-                  <td className="text-center"><button className="btn btn-info" onClick={() => this.handleInfoComanda(data.id)}><i className="fa fa-info-circle"></i></button></td>
+                  <td className="text-center"><button className="btn btn-info" onClick={() => this.handleOpenModalInfoComanda(data)}><i className="fa fa-info-circle"></i></button></td>
                 </tr>
               ))
             }
           </tbody>
         </table>
+
+        <Modal
+          size="lg"
+          aria-labelledby="contained-modal-title-vcenter"
+          show={this.state.showModalInfo}
+          onHide={() => this.setState({ showModalInfo: false })}
+          centered
+          >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              Informação da Comanda
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <table className="table">
+              <tbody>
+                <tr>
+                  <td><b>Nome</b></td>
+                  <td className="text-center"><b>Total</b></td>
+                </tr>
+                <tr>
+                  <td>{this.state.comandaInfo.nome}</td>
+                  {/* <td className="text-center">{this.state.comandaInfo.total}</td> */}
+                  <td className="text-center"><DinheiroMask>{this.state.comandaInfo.total}</DinheiroMask></td>
+                </tr>
+              </tbody>
+            </table>
+
+            {this.state.comandaInfo.vendasId && this.state.comandaInfo.vendasId.map((data, index) => {
+              const venda = _.find(this.state.vendas, ["id", data]);
+              return (
+                <Fragment key={index}>
+                  <h4>Vendas</h4>
+                  <p>{JSON.stringify(venda)}</p>
+                </Fragment>
+              )
+            })}
+          </Modal.Body>
+        </Modal>
       </Fragment>
     )
   }

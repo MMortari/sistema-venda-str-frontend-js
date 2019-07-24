@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+// import { firebase } from './../../../config/firebase';
 import { Form, Row, Col } from 'react-bootstrap';
 import { Form as Unform, Select, Input } from '@rocketseat/unform';
 import _ from 'lodash';
@@ -99,7 +100,8 @@ class VendasNova extends Component {
     hasComanda: false, // Status da comanda (se tem uma comanda selecionada ou não)
     produtos: [], // Lista de produtos
     comandas: [], // Lista de comandas
-    comandaSelect: [], // Comanda selecionada
+    comandaSelect: [], // Opções de seleção de comanda
+    comandaSelecionada: {}, // Comanda selecionada 
     newComanda: null, // Nova comanda
     totalProdutos: [{ id: null, qtde: 0, total: 0 }], // Totalizador por produto
     total: { qtde: 0, valor: 0 }, // Todal da compra
@@ -144,17 +146,28 @@ class VendasNova extends Component {
       created_at: new Date()
     })
 
+    console.log("vendaEnvia -> ", vendaEnvia)
+
     if(this.state.hasComanda) {
 
       var updateComanda = await firestoreService.updateComandas({
         id: this.state.comandaSelecionada.id, 
         total: this.state.totalComanda.valor,
-        vendasId: vendaEnvia.data.id
+        // vendasId: firebase.firestore.FieldValue.arrayUnion(vendaEnvia.data.id)
       });
+
+      console.log("updateComanda data -> ", {
+        id: this.state.comandaSelecionada.id, 
+        total: this.state.totalComanda.valor,
+        vendasId: vendaEnvia.data.id
+      })
+
+      console.log("updateComanda -> ", updateComanda)
 
     }
     
     if(vendaEnvia.status && updateComanda.status) {
+    // if(vendaEnvia.status) {
       toast.update(alert, {
         render: "Cadastro de venda realizado com sucesso!",
         type: toast.TYPE.SUCCESS,
@@ -180,7 +193,7 @@ class VendasNova extends Component {
       
       this.setState({
         totalComanda: { valor: comanda.total + this.state.total.valor },
-        comandaSelecionada: value,
+        comandaSelecionada: comanda,
         hasComanda: true
       })
     } else {
@@ -238,7 +251,7 @@ class VendasNova extends Component {
 
     let produtos = [...this.state.totalProdutos];
     let total = { qtde: 0, valor: 0, };
-    let totalComanda = { valor: this.state.comandaSelecionada.total };
+    let totalComanda = { valor: this.state.comandaSelecionada.total ? this.state.comandaSelecionada.total : 0 };
     const qtde = parseInt(e.target.value);
 
     produtos[index].total = qtde * valor;
@@ -247,11 +260,11 @@ class VendasNova extends Component {
     produtos.map(data => {
       total.qtde += data.qtde;
       total.valor += data.total;
-      totalComanda.valor += data.total;
       return null;
     })
 
-    this.setState({ totalProdutos: produtos, total, totalComanda });
+    this.setState({ totalProdutos: produtos, total, totalComanda: { valor: parseFloat(totalComanda.valor + total.valor) } });
+
   }
 
   render() {
@@ -279,7 +292,7 @@ class VendasNova extends Component {
                   name="new-comanda"  
                   placeholder="Insira o nome da nova comanda" 
                   id="ew-comanda"
-                  disabled={this.state.comandaSelecionada != null} />
+                  disabled={this.state.hasComanda} />
               </Form.Group> 
             </Col> 
             <Col md={1} >
@@ -287,7 +300,7 @@ class VendasNova extends Component {
                 className="btn btn-dark" 
                 style = {{ "marginTop": 32 }} 
                 type="button"
-                disabled = {this.state.comandaSelecionada != null} 
+                disabled = {this.state.hasComanda} 
                 onClick={this.handleCreateNewComanda}><i className="fa fa-plus-circle"></i></button>
             </Col> 
             <Col md={12}>
