@@ -6,7 +6,7 @@ export default class firestoreService {
   static async getCategorias() {
     return await new Promise((resolve, reject) => {
       let categorias = [];
-      db.collection('categorias').get()
+      db.collection('categorias').orderBy("created_at").get()
         .then((snapshot) => {
           snapshot.forEach((doc) => {
             categorias.push({ ...doc.data(), id: doc.id })
@@ -23,7 +23,7 @@ export default class firestoreService {
    */
   static async getProdutos(categorias = this.getCategorias()) {
     return await new Promise((resolve, reject) => {
-      db.collection('produtos').get()
+      db.collection('produtos').orderBy("created_at").get()
         .then((snapshot) => {
           let produtos = [];
           snapshot.forEach((doc) => {
@@ -44,21 +44,21 @@ export default class firestoreService {
   static async updateProdutos(produto) { 
     return await new Promise((resolve, reject) => {
       db.collection('produtos').doc(produto.id).set(produto)
-        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .then((data) => resolve({ status: true, data }))
         .catch((err) => reject({ status: false, data: err }));
     });
   }
   static async deleteProdutos(id) {
     return await new Promise((resolve, reject) => {
       db.collection('produtos').doc(`${id}`).delete()
-        .then((data) => resolve({ status: true, data: { id: data.id } }))
-        .catch((err) => reject({ status: false, data: err }))
+        .then((data) => resolve({ status: true }))
+        .catch((err) => reject({ status: false }))
     });
   }
 
   static async getVendas() {
     return await new Promise((resolve, reject) => {
-      db.collection('vendas').get()
+      db.collection('vendas').orderBy("created_at").get()
         .then((snapshot) => {
           let vendas = [];
           snapshot.forEach((doc) => {
@@ -93,7 +93,7 @@ export default class firestoreService {
 
   static async getComandas() {
     return await new Promise((resolve, reject) => {
-      db.collection('comandas').get()
+      db.collection('comandas').orderBy("created_at").get()
         .then((snapshot) => {
           let comandas = [];
           snapshot.forEach((doc) => {
@@ -114,7 +114,7 @@ export default class firestoreService {
   static async updateComandas(produto) { 
     return await new Promise((resolve, reject) => {
       db.collection('comandas').doc(produto.id).update(produto)
-        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .then((data) => resolve({ status: true, data }))
         .catch((err) => reject({ status: false, data: err }));
     });
   }
