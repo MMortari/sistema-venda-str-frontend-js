@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { Form as Unform, Select, Input } from '@rocketseat/unform';
 import _ from 'lodash';
+import firebase from 'firebase/app';
 import { ToastContainer, toast } from 'react-toastify';
 
 // Service
@@ -149,18 +150,18 @@ class VendasNova extends Component {
     console.log("vendaEnvia -> ", vendaEnvia)
 
     if(this.state.hasComanda) {
-
-      var updateComanda = await firestoreService.updateComandas({
-        id: this.state.comandaSelecionada.id, 
-        total: this.state.totalComanda.valor,
-        // vendasId: firebase.firestore.FieldValue.arrayUnion(vendaEnvia.data.id)
-      });
-
+      
       console.log("updateComanda data -> ", {
         id: this.state.comandaSelecionada.id, 
         total: this.state.totalComanda.valor,
         vendasId: vendaEnvia.data.id
       })
+
+      var updateComanda = await firestoreService.updateComandas({
+        id: this.state.comandaSelecionada.id, 
+        total: this.state.totalComanda.valor,
+        vendasId: firebase.firestore.FieldValue.arrayUnion(vendaEnvia.data.id)
+      });
 
       console.log("updateComanda -> ", updateComanda)
 
