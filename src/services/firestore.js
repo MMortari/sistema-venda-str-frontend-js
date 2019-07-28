@@ -1,4 +1,5 @@
-import { firebaseFirestore as db } from '../config/firebase';
+import firebase from 'firebase/app';
+import { firebaseFirestore as db, app } from '../config/firebase';
 import _ from 'lodash';
 
 export default class firestoreService {
@@ -17,10 +18,6 @@ export default class firestoreService {
     })
   }
 
-  /**
-   * @param { string[] } categorias 
-   * @returns { Promise } 
-   */
   static async getProdutos(categorias = this.getCategorias()) {
     return await new Promise((resolve, reject) => {
       db.collection('produtos').orderBy("created_at").get()
@@ -43,7 +40,7 @@ export default class firestoreService {
   }
   static async updateProdutos(produto) { 
     return await new Promise((resolve, reject) => {
-      db.collection('produtos').doc(produto.id).set(produto)
+      db.collection('produtos').doc(produto.id).update(produto)
         .then((data) => resolve({ status: true, data }))
         .catch((err) => reject({ status: false, data: err }));
     });
@@ -83,10 +80,25 @@ export default class firestoreService {
         .catch((err) => reject({ status: false, data: err }));
     });
   }
-  static async deleteVendas(id) {
+  static async deleteVendas({ id, total }, comandas = this.getComandas()) {
+    const comandasAll = await comandas;
+    
+    const comanda = comandasAll.find(comanda => {
+      return comanda.vendasId.find(venda => {
+        return venda === id
+      })
+    })
+
+    if(comanda !== undefined) { // Primeiro apagar das comandas
+      db.collection('comandas').doc(comanda.id).update({
+        vendasId: firebase.firestore.FieldValue.arrayRemove(id),
+        total: comanda.total - total
+      })
+    }
+    
     return await new Promise((resolve, reject) => {
       db.collection('vendas').doc(`${id}`).delete()
-        .then((data) => resolve({ status: true, data: { id: data.id } }))
+        .then((data) => resolve({ status: true, data: { id } }))
         .catch((err) => reject({ status: false, data: err }))
     });
   }
@@ -111,19 +123,23 @@ export default class firestoreService {
         .catch((err) => reject({ status: false, data: err }));
     });
   }
-  static async updateComandas(produto) { 
+  static async updateComandas(comanda) { 
     return await new Promise((resolve, reject) => {
-      db.collection('comandas').doc(produto.id).update(produto)
+      db.collection('comandas').doc(comanda.id).update(comanda)
         .then((data) => resolve({ status: true, data }))
         .catch((err) => reject({ status: false, data: err }));
     });
   }
-  static async deleteComandas(id) {
-    return await new Promise((resolve, reject) => {
-      db.collection('comandas').doc(`${id}`).delete()
-        .then((data) => resolve({ status: true, data: { id: data.id } }))
-        .catch((err) => reject({ status: false, data: err }))
-    });
+  static async deleteComandas(comanda) {
+    if(comanda.total === 0 && comanda.vendasId.length === 0) {
+      return await new Promise((resolve, reject) => {
+        db.collection('comandas').doc(`${comanda.id}`).delete()
+          .then((data) => resolve({ status: true, data: { id: comanda.id } }))
+          .catch((err) => reject({ status: false, data: err }))
+      });
+    } else {
+      return { status: false, data: "permission denied" };
+    }
   }
 
 }

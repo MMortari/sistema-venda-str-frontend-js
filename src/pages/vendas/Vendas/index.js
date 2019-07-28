@@ -45,6 +45,7 @@ class Vendas extends Component {
   handleDeleteVenda = id => {
     MySwal.fire({
       title: <p>Deseja apagar essa venda?</p>,
+      text: "Essa venda será apagada permanentemente",
       type: 'question',
       showCancelButton: true,
       cancelButtonText: "Cancel",
@@ -82,9 +83,6 @@ class Vendas extends Component {
     console.log("Venda -> ", vendaInfo);
 
     await this.setState({ vendaInfo, modalShow: true });
-
-    console.log("State info -> ", this.state)
-    // this.setState({ modalShow: true, vendaInfo: venda });
   }
 
   handleCloseModal = () => this.setState({ vendaInfo: {}, modalShow: false, });
@@ -93,12 +91,6 @@ class Vendas extends Component {
     const vendas = await firestoreService.getVendas();
     this.setState({ vendas });
   }
-
-  // infoProdutosPeloId = id => {
-  //   const index = _.findIndex(this.state.produtos, ["id", id]);
-
-  //   return this.state.produtos[index];
-  // }
 
   render() {
     return (
@@ -129,7 +121,7 @@ class Vendas extends Component {
                 <td className="text-center"><b>{vendas.produtos.reduce((count, data) => count += data.qtde, 0)}</b></td>
                 <td className="text-center"><DataMask>{vendas.created_at.seconds * 1000}</DataMask></td>
                 <td><button className="btn btn-info" onClick={() => this.handleInfoVenda(vendas)}><i className="fa fa-info-circle"></i></button></td>
-                <td><button className="btn btn-danger" onClick={() => this.handleDeleteVenda(vendas.id)}><i className="fa fa-trash"></i></button></td>
+                <td><button className="btn btn-danger" onClick={() => this.handleDeleteVenda(vendas)}><i className="fa fa-trash"></i></button></td>
               </tr>
             )) }
           </tbody>

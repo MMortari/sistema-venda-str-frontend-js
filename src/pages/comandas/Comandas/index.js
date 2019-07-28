@@ -1,6 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
 import _ from 'lodash';
+import { ToastContainer, toast } from 'react-toastify';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 // Services
 // import api from '../../../services/api';
@@ -12,6 +15,8 @@ import DataMask from './../../../components/DataMask';
 import Loading from './../../../components/Loading';
 // Style
 import './style.scss';
+
+const MySwal = withReactContent(Swal);
 
 class Comandas extends Component {
 
@@ -37,11 +42,48 @@ class Comandas extends Component {
     // Armazena no state
     this.setState({ comandas, vendas, produtos, loading: false });
 
-    console.log("Initial state comandas -> ", this.state);
+    // console.log("Initial state comandas -> ", this.state);
   }
 
   handleOpenModalInfoComanda = comanda => this.setState({ comandaInfo: comanda, showModalInfo: true });
   handleCloseModalInfoComanda = () => this.setState({ comandaInfo: {}, showModalInfo: false });
+
+  handleDeleteComanda = comanda => {
+    console.log("Apagar Comanda -> ", comanda);
+    MySwal.fire({
+      title: <p>Deseja apagar essa comanda?</p>,
+      type: 'question',
+      showCancelButton: true,
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Apagar"
+    }).then(async ({ value }) => {
+      if(value) {
+        let apagar = toast("Apagando...", { containerId: 'A', autoClose: false })
+        
+        const response = await firestoreService.deleteComandas(comanda);
+
+        console.log(`Delete ${comanda.id} -> `, response);
+        if(response.status) {
+          const comandas = this.state.comandas.filter(data => data.id !== comanda.id);
+          this.setState({ comandas });
+
+          toast.update(apagar, {
+            render: 'Apagado com sucesso!',
+            type: toast.TYPE.SUCCESS,
+            containerId: 'A', 
+            autoClose: 10000
+          })
+        } else {
+          toast.update(apagar, {
+            render: 'Erro ao apagar!',
+            type: toast.TYPE.ERROR,
+            containerId: 'A', 
+            autoClose: 10000
+          })
+        }
+      };
+    })
+  }
 
   render() {
     return (
@@ -49,6 +91,7 @@ class Comandas extends Component {
         <Head title="Comandas" breadcrumb={['Comandas']} />
 
         { this.state.loading && (<Loading />) }
+        <ToastContainer enableMultiContainer containerId={'A'} position={toast.POSITION.TOP_RIGHT} />
 
         <table className="table">
           <thead>
@@ -58,6 +101,7 @@ class Comandas extends Component {
               <th className="text-center">Vendas</th>
               <th className="text-center">Total</th>
               <th className="text-center w-5">Info</th>
+              <th className="text-center w-5">Apagar</th>
             </tr>
           </thead>
           <tbody>
@@ -69,6 +113,7 @@ class Comandas extends Component {
                   <td className="text-center">{data.vendasId.length}</td>
                   <td className="text-center"><DinheiroMask>{data.total}</DinheiroMask></td>
                   <td className="text-center"><button className="btn btn-info" onClick={() => this.handleOpenModalInfoComanda(data)}><i className="fa fa-info-circle"></i></button></td>
+                  <td className="text-center"><button className="btn btn-danger" disabled={data.total !== 0 && data.vendasId.length !== 0} onClick={() => this.handleDeleteComanda(data)}><i className="fa fa-info-circle"></i></button></td>
                 </tr>
               ))
             }
